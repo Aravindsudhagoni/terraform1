@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id') // Replace with your credential ID
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key') // Replace with your credential ID
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Clone Terraform configuration from a Git repository
+                git url: 'https://github.com/your-repo/terraform-config.git', branch: 'main'
+            }
+        }
+
+        stage('Initialize Terraform') {
+            steps {
+                sh 'terraform init'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                sh 'terraform plan'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply -auto-approve'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
+        }
+    }
+}
